@@ -1,17 +1,17 @@
 package main
 
 import (
-	Core "github.com/vvampirius/retracker/core"
-	"github.com/vvampirius/retracker/core/common"
 	"flag"
 	"fmt"
-	"syscall"
+	Core "github.com/vvampirius/retracker/core"
+	"github.com/vvampirius/retracker/core/common"
 	"os"
+	"syscall"
 )
 
-const VERSION  = 0.2
+const VERSION = 0.2
 
-func PrintRepo(){
+func PrintRepo() {
 	fmt.Fprintln(os.Stderr, "\n# https://github.com/vvampirius/retracker")
 }
 
@@ -35,9 +35,9 @@ func main() {
 	}
 
 	config := common.Config{
-		Listen: *listen,
-		Debug: *debug,
-		Age: *age,
+		Listen:  *listen,
+		Debug:   *debug,
+		Age:     *age,
 		XRealIP: *xrealip,
 	}
 

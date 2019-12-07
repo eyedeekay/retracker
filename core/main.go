@@ -1,24 +1,24 @@
 package core
 
 import (
-	"net/http"
 	"fmt"
 	"github.com/vvampirius/retracker/core/common"
 	Receiver "github.com/vvampirius/retracker/core/receiver"
 	Storage "github.com/vvampirius/retracker/core/storage"
+	"net/http"
 )
 
 type Core struct {
-	Config *common.Config
-	Storage *Storage.Storage
+	Config   *common.Config
+	Storage  *Storage.Storage
 	Receiver *Receiver.Receiver
 }
 
 func New(config *common.Config) *Core {
 	storage := Storage.New(config)
 	core := Core{
-		Config: config,
-		Storage: storage,
+		Config:   config,
+		Storage:  storage,
 		Receiver: Receiver.New(config, storage),
 	}
 	http.HandleFunc("/announce", core.Receiver.Announce.HttpHandler)
