@@ -4,10 +4,20 @@ import (
 	"net/http"
 	"regexp"
 	"fmt"
+    "strings"
 )
 
 func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
 	xrealip := r.Header.Get(`X-Real-IP`)
+    xi2pdest := r.Header.Get(`X-I2p-Dest-Base64`)
+    // if x-i2p-dest-base64 header is present enforce it's usage for announces.
+    // if it isn't, assume it's on purpose because by default it will be
+    // present.
+    if xi2pdest != "" {
+        if !strings.HasPrefix(r.URL.Query().Get(`ip`), xi2pdest){
+            return
+        }
+    }
 	if self.Logger != nil {
 		self.Logger.Printf("%s %s %s %s\n", r.RemoteAddr, xrealip, r.RequestURI, r.UserAgent())
 	}
@@ -22,6 +32,7 @@ func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
 		r.URL.Query().Get(`ip`),
 		r.URL.Query().Get(`numwant`),
 		r.URL.Query().Get(`event`),
+        r.URL.Query().Get(`compact`),
 		)
 	if d, err := rr.Bencode(); err==nil {
 		fmt.Fprint(w, d)
