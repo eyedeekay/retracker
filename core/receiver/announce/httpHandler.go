@@ -12,7 +12,7 @@ func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
     xi2pdest := r.Header.Get(`X-I2p-Dest-Base64`)
     // if x-i2p-dest-base64 header is present enforce it's usage for announces.
     // if it isn't, assume it's on purpose because by default it will be
-    // present.
+    // present on I2P clients.
     if xi2pdest != "" {
         if !strings.HasPrefix(r.URL.Query().Get(`ip`), xi2pdest){
             return
@@ -22,7 +22,7 @@ func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
 		self.Logger.Printf("%s %s %s %s\n", r.RemoteAddr, xrealip, r.RequestURI, r.UserAgent())
 	}
 	rr := self.ProcessAnnounce(
-		self.getRemoteAddr(r, xrealip),
+		self.getRemoteAddr(r, xrealip, xi2pdest),
 		r.URL.Query().Get(`info_hash`),
 		r.URL.Query().Get(`peer_id`),
 		r.URL.Query().Get(`port`),
@@ -42,7 +42,15 @@ func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
 	} else { self.Logger.Println(err.Error()) }
 }
 
-func (self *Announce) getRemoteAddr(r *http.Request, xrealip string) string {
+func (self *Announce) getRemoteAddr(r *http.Request, xrealip, xi2pdest string) string {
+    // if we're given an I2P base64, always return it. Append .i2p to the dest
+    // if it's not present.
+    if xi2pdest != `` {
+        if strings.HasSuffix(xi2pdest, ".i2p") {
+            return xi2pdest
+        }
+        return xi2pdest+".i2p"
+    }
 	if self.Config.XRealIP && xrealip!=`` {
 		return xrealip
 	}
