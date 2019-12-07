@@ -24,7 +24,7 @@ func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
 	rr := self.ProcessAnnounce(
 		self.getRemoteAddr(r, xrealip, xi2pdest),
 		r.URL.Query().Get(`info_hash`),
-		r.URL.Query().Get(`peer_id`),
+		self.getPeerId(r.URL.Query().Get(`compact`), r.URL.Query().Get(`peer_id`), r.Header.Get(`X-I2p-Dest-Base64`)),
 		r.URL.Query().Get(`port`),
 		r.URL.Query().Get(`uploaded`),
 		r.URL.Query().Get(`downloaded`),
@@ -32,7 +32,6 @@ func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
 		r.URL.Query().Get(`ip`),
 		r.URL.Query().Get(`numwant`),
 		r.URL.Query().Get(`event`),
-		r.URL.Query().Get(`compact`),
 	)
 	if d, err := rr.Bencode(); err == nil {
 		fmt.Fprint(w, d)
@@ -42,6 +41,15 @@ func (self *Announce) HttpHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		self.Logger.Println(err.Error())
 	}
+}
+
+func (self *Announce) getPeerId(compact, peerid, xi2phash string) string {
+	if compact == `1` {
+		if xi2phash != "" {
+			return xi2phash
+		}
+	}
+	return peerid
 }
 
 func (self *Announce) getRemoteAddr(r *http.Request, xrealip, xi2pdest string) string {

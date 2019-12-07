@@ -5,7 +5,7 @@ import (
 )
 
 func (self *Announce) ProcessAnnounce(remoteAddr, infoHash, peerID, port, uploaded, downloaded, left, ip, numwant,
-	event, compact string) *tracker.Response {
+	event string) *tracker.Response {
 	if request, err := tracker.MakeRequest(remoteAddr, infoHash, peerID, port, uploaded, downloaded, left, ip, numwant,
 		event, self.Logger); err == nil {
 		if self.Logger != nil {
