@@ -58,8 +58,8 @@ func (self *Request) Compact() common.Address {
 
 func (self *Request) CompactPeer() common.Peer {
 	peer := common.Peer{
-		IP:     self.Compact(),
-		Port:   self.Port,
+		IP:   self.Compact(),
+		Port: self.Port,
 	}
 	if !peer.IP.Valid() {
 		peer.IP = self.remoteAddr
