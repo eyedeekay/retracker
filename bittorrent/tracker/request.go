@@ -58,7 +58,6 @@ func (self *Request) Compact() common.Address {
 
 func (self *Request) CompactPeer() common.Peer {
 	peer := common.Peer{
-		PeerID: self.PeerID,
 		IP:     self.Compact(),
 		Port:   self.Port,
 	}
