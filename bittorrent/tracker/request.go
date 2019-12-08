@@ -1,6 +1,8 @@
 package tracker
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/vvampirius/retracker/bittorrent/common"
@@ -8,6 +10,8 @@ import (
 	"strconv"
 	"time"
 )
+
+var i2pB64enc *base64.Encoding = base64.NewEncoding("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-~")
 
 type Request struct {
 	timestamp  time.Time
@@ -27,6 +31,35 @@ func (self *Request) Peer() common.Peer {
 	peer := common.Peer{
 		PeerID: self.PeerID,
 		IP:     self.IP,
+		Port:   self.Port,
+	}
+	if !peer.IP.Valid() {
+		peer.IP = self.remoteAddr
+	}
+	return peer
+}
+
+// get base64 representation of i2p dest sha256 hash(the 44-character one)
+func (p *Request) I2PHash() common.Address {
+	hash := sha256.New()
+	hash.Write([]byte(p.IP))
+	digest := hash.Sum(nil)
+	buf := make([]byte, 44)
+	i2pB64enc.Encode(buf, digest)
+	return common.Address(buf)
+}
+
+func (self *Request) Compact() common.Address {
+	if len(self.IP) > 350 {
+		return self.I2PHash()
+	}
+	return self.IP
+}
+
+func (self *Request) CompactPeer() common.Peer {
+	peer := common.Peer{
+		PeerID: self.PeerID,
+		IP:     self.Compact(),
 		Port:   self.Port,
 	}
 	if !peer.IP.Valid() {

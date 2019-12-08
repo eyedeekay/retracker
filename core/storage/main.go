@@ -27,11 +27,15 @@ func (self *Storage) Delete(request tracker.Request) {
 	delete(self.Requests[request.InfoHash], request.PeerID) //TODO: test this
 }
 
-func (self *Storage) GetPeers(infoHash common.InfoHash) []common.Peer {
+func (self *Storage) GetPeers(infoHash common.InfoHash, compact string) []common.Peer {
 	peers := make([]common.Peer, 0)
 	if requests, ok := self.Requests[infoHash]; ok {
 		for _, request := range requests {
-			peers = append(peers, request.Peer())
+			if compact != `1` {
+				peers = append(peers, request.Peer())
+			} else {
+				peers = append(peers, request.CompactPeer())
+			}
 		}
 	}
 	return peers
